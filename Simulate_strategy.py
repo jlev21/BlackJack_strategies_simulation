@@ -61,7 +61,7 @@ def random_strategy(hand, dealer_card):
     if choice == 1:
         return 'hit'
     else:
-        return 'stay'
+        return 'stand'
 
 def basic_strategy_no_split(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]

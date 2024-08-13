@@ -59,7 +59,7 @@ def random_strategy(hand, dealer_card):
     if choice == 1:
         return 'hit'
     else:
-        return 'stay'
+        return 'stand'
 
 def basic_strategy_no_split(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
@@ -268,7 +268,7 @@ def basic_strategy(hand, dealer_card):
         if dealer_card_value < 10:
             return 'double'
         else:
-            https: // github.com / jlev21 / BlackJack - strategy - simulation.git            return 'hit'
+            return 'hit'
     if hand.value == 11:
         return 'double'
     if hand.value == 12:
