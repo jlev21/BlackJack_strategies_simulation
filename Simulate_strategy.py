@@ -10,14 +10,21 @@ values = {'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eig
 # Deck Class
 class Deck:
     def __init__(self, num_decks):
+        self.num_decks = num_decks
+        self.reshuffle()
+
+    def reshuffle(self):
+        """Reshuffles the decks and creates a new shoe."""
         self.deck = []
-        for i in range(num_decks):
+        for i in range(self.num_decks):
             for suit in suits:
                 for rank in ranks:
                     self.deck.append((rank, suit))
         random.shuffle(self.deck)
 
     def deal(self):
+        if len(self.deck) == 0:
+            self.reshuffle()
         return self.deck.pop()
 
 # Hand Class
@@ -50,18 +57,104 @@ class Hand:
     def is_blackjack(self):
         return self.value == 21 and len(self.cards) == 2
 
+# Define your strategy functions (simplest_strategy, random_strategy, etc.) here
+
+# Function to simulate a hand of blackjack
+def play_blackjack(strategy_function, initial_bet, deck):
+    player_hand = Hand(initial_bet)
+    dealer_hand = Hand(0)  # Dealer doesn't have a bet amount
+
+    # Initial dealing
+    player_hand.add_card(deck.deal())
+    player_hand.add_card(deck.deal())
+    dealer_hand.add_card(deck.deal())
+    dealer_hand.add_card(deck.deal())
+
+    # Check for blackjack
+    if dealer_hand.is_blackjack():
+        if player_hand.is_blackjack():
+            return 0  # No profit or loss
+        else:
+            return int(initial_bet * -1)  # Player loses the bet
+
+    if player_hand.is_blackjack():
+        return int(initial_bet * 1.5)  # Player wins 1.5 times the bet
+
+    hands = [player_hand]  # Initialize with the player's original hand
+    total_profit_loss = 0  # Track total profit or loss
+
+    # Process each hand (to handle splitting)
+    for hand in hands:
+        while True:
+            action = strategy_function(hand, dealer_hand.cards[0])
+
+            if action == 'hit':
+                hand.add_card(deck.deal())
+                if hand.value > 21:
+                    return int(initial_bet * -1)
+
+            elif action == 'stand':
+                break
+
+            elif action == 'double':
+                hand.double_bet()
+                hand.add_card(deck.deal())
+                if hand.value > 21:
+                    return int(hand.bet_amount * -1)
+                break
+
+            elif action == 'split':
+                if hand.can_split():
+                    # Create two new hands from the split
+                    new_hand1 = Hand(hand.bet_amount)
+                    new_hand2 = Hand(hand.bet_amount)
+
+                    # Add one card from the original hand to each new hand
+                    new_hand1.add_card(hand.cards[0])
+                    new_hand2.add_card(hand.cards[1])
+
+                    # Deal one more card to each hand
+                    new_hand1.add_card(deck.deal())
+                    new_hand2.add_card(deck.deal())
+
+                    # Add these new hands to the list of hands to process
+                    hands.append(new_hand1)
+                    hands.append(new_hand2)
+
+                    break
+            else:
+                break
+
+    # Dealer's turn
+    while dealer_hand.value < 17:
+        dealer_hand.add_card(deck.deal())
+
+    # Determine the outcome for each hand
+    for hand in hands:
+        if dealer_hand.value > 21:
+            total_profit_loss += hand.bet_amount
+        elif dealer_hand.value > hand.value:
+            total_profit_loss -= hand.bet_amount
+        elif dealer_hand.value < hand.value:
+            total_profit_loss += hand.bet_amount
+
+    return total_profit_loss
+
+
 def simplest_strategy(hand, dealer_card):
     if hand.value < 17:
         return 'hit'
     else:
         return 'stand'
 
+
 def random_strategy(hand, dealer_card):
-    choice = random.randint(1,2)
+    choice = random.randint(1, 2)
     if choice == 1:
         return 'hit'
     else:
         return 'stand'
+
 
 def basic_strategy_no_split(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
@@ -121,6 +214,7 @@ def basic_strategy_no_split(hand, dealer_card):
     if hand.value >= 17:
         return 'stand'
 
+
 def basic_strategy_no_aces(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
     # handling split situations first
@@ -174,7 +268,7 @@ def basic_strategy_no_aces(hand, dealer_card):
         return 'stand'
 
 
-def basic_strategy_no_splits_or_aces(hand,dealer_card):
+def basic_strategy_no_splits_or_aces(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
     if hand.value < 9:
         return 'hit'
@@ -202,6 +296,7 @@ def basic_strategy_no_splits_or_aces(hand,dealer_card):
             return 'hit'
     if hand.value >= 17:
         return 'stand'
+
 
 def basic_strategy(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
@@ -286,107 +381,25 @@ def basic_strategy(hand, dealer_card):
     if hand.value >= 17:
         return 'stand'
 
-# Function to simulate a hand of blackjack
-def play_blackjack(strategy_function, initial_bet, num_of_decks):
-    deck = Deck(num_of_decks)
-    player_hand = Hand(initial_bet)
-    dealer_hand = Hand(0)  # Dealer doesn't have a bet amount
-
-    # Initial dealing
-    player_hand.add_card(deck.deal())
-    player_hand.add_card(deck.deal())
-    dealer_hand.add_card(deck.deal())
-    dealer_hand.add_card(deck.deal())
-
-    # Check for blackjack
-    if dealer_hand.is_blackjack():
-        if player_hand.is_blackjack():
-            return 0  # No profit or loss
-        else:
-            return int(initial_bet * -1)  # Player loses the bet
-
-    if player_hand.is_blackjack():
-        return int(initial_bet * 1.5)  # Player wins 1.5 times the bet
-
-    hands = [player_hand]  # Initialize with the player's original hand
-    total_profit_loss = 0  # Track total profit or loss
-
-    # Process each hand (to handle splitting)
-    for hand in hands:
-        while True:
-            action = strategy_function(hand, dealer_hand.cards[0])
-
-            if action == 'hit':
-                hand.add_card(deck.deal())
-                if hand.value > 21:
-                    return int(initial_bet * -1)
-
-            elif action == 'stand':
-                break
-
-            elif action == 'double':
-                hand.double_bet()
-                hand.add_card(deck.deal())
-                if hand.value > 21:
-                    return int(hand.bet_amount * -1)
-                break
-
-            elif action == 'split':
-                if hand.can_split():
-                    # Create two new hands from the split
-                    new_hand1 = Hand(hand.bet_amount)
-                    new_hand2 = Hand(hand.bet_amount)
-
-                    # Add one card from the original hand to each new hand
-                    new_hand1.add_card(hand.cards[0])
-                    new_hand2.add_card(hand.cards[1])
-
-                    # Deal one more card to each hand
-                    new_hand1.add_card(deck.deal())
-                    new_hand2.add_card(deck.deal())
-
-                    # Add these new hands to the list of hands to process
-                    hands.append(new_hand1)
-                    hands.append(new_hand2)
-
-                    break
-            else:
-                break
-
-    # Dealer's turn
-    while dealer_hand.value < 17:
-        dealer_hand.add_card(deck.deal())
-
-    # Determine the outcome for each hand
-    for hand in hands:
-        if dealer_hand.value > 21:
-            total_profit_loss += hand.bet_amount
-        elif dealer_hand.value > hand.value:
-            total_profit_loss -= hand.bet_amount
-        elif dealer_hand.value < hand.value:
-            total_profit_loss += hand.bet_amount
-
-    return total_profit_loss
-
 def calculate_mean(data):
     return sum(data)/len(data)
 
 # play many hands
-def simulate_hands(num_of_hands, strategy, bet):
+def simulate_hands(num_of_hands, strategy, bet, num_of_decks):
     results = []
     total_profit_loss = 0
+    deck = Deck(num_of_decks)  # Create the deck once for the whole simulation
     for i in range(num_of_hands):
-        hand_result = play_blackjack(strategy, bet, 1)
+        hand_result = play_blackjack(strategy, bet, deck)
         results.append(hand_result)
         total_profit_loss += hand_result
     return results, total_profit_loss
 
-
 # plot histogram of distribution of blackjack session profits and print mean of data
-def plot_hand_data(amount_of_data, num_of_hands, strategy, bet):
+def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
     profits = []
     for i in range(amount_of_data):
-        hand_profit_loss = simulate_hands(num_of_hands, strategy, bet)[1]
+        hand_profit_loss = simulate_hands(num_of_hands, strategy, bet, num_of_decks)[1]
         profits.append(hand_profit_loss)
     print(calculate_mean(profits))
     data = profits
@@ -397,12 +410,14 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet):
     plt.show()
 
 
-plot_hand_data(1000,100, basic_strategy, 25)
-plot_hand_data(1000,100, simplest_strategy, 25)
-plot_hand_data(1000,100, random_strategy, 25)
-plot_hand_data(1000,100, basic_strategy_no_split, 25)
-plot_hand_data(1000,100, basic_strategy_no_aces, 25)
-plot_hand_data(1000,100, basic_strategy_no_splits_or_aces, 25)
+
+
+plot_hand_data(10000,100, basic_strategy, 25,6)
+plot_hand_data(10000,100, simplest_strategy, 25,6)
+plot_hand_data(10000,100, random_strategy, 25,6)
+plot_hand_data(10000,100, basic_strategy_no_split, 25,6)
+plot_hand_data(10000,100, basic_strategy_no_aces, 25,6)
+plot_hand_data(10000,100, basic_strategy_no_splits_or_aces, 25,6)
 
 
 

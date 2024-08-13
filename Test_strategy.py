@@ -53,6 +53,12 @@ class Hand:
 
 
 # simple blackjack strategy: hit if below 17
+def simplest_strategy(hand, dealer_card):
+    if hand.value < 17:
+        return 'hit'
+    else:
+        return 'stand'
+
 
 def random_strategy(hand, dealer_card):
     choice = random.randint(1,2)
