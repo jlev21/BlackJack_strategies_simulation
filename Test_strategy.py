@@ -61,69 +61,264 @@ def simplest_strategy(hand, dealer_card):
 
 
 def random_strategy(hand, dealer_card):
-    choice = random.randint(1,2)
+    choice = random.randint(1, 2)
     if choice == 1:
         return 'hit'
     else:
         return 'stand'
 
+
 def basic_strategy_no_split(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
+    # handling soft totals
     is_soft = any(card[0] == 'Ace' for card in hand.cards) and hand.value == sum(values[card[0]] for card in hand.cards)
-    if is_soft and hand.value == 19:
-        if dealer_card_value == 6:
-            return 'double'
-        else:
+    if is_soft:
+        if hand.value == 20:  # A,9
             return 'stand'
-    if is_soft and hand.value == 18:
-        if 2 <= dealer_card_value <= 6:
-            return 'double'
-        elif 9 <= dealer_card_value <= 11:
-            return 'hit'
-        else:
-            return 'stand'
-    if is_soft and hand.value == 17:
-        if 3 <= dealer_card_value <= 6:
-            return 'double'
-        else:
-            return 'hit'
-    if is_soft and 16 <= hand.value <= 15:
-        if 4 <= dealer_card_value <= 6:
-            return 'double'
-        else:
-            return 'hit'
-    if is_soft and 14 <= hand.value <= 13:
-        if 5 <= dealer_card_value <= 6:
-            return 'double'
-        else:
-            return 'hit'
-    # remaining scenarios
-    if hand.value < 9:
-        return 'hit'
-    if hand.value == 9:
-        if 3 <= dealer_card_value <= 6:
-            return 'double'
-        else:
-            return 'hit'
-    if hand.value == 10:
-        if dealer_card_value < 10:
-            return 'double'
-        else:
-            return 'hit'
-    if hand.value == 11:
-        return 'double'
-    if hand.value == 12:
-        if 4 <= dealer_card_value <= 6:
-            return 'stand'
-        else:
-            return 'hit'
-    if 13 <= hand.value <= 16:
+        elif hand.value == 19:  # A,8
+            if dealer_card_value == 6:
+                return 'double'
+            else:
+                return 'stand'
+        elif hand.value == 18:  # A,7
+            if 2 <= dealer_card_value <= 6:
+                return 'double'
+            elif 9 <= dealer_card_value <= 11:
+                return 'hit'
+            else:
+                return 'stand'
+        elif hand.value == 17:  # A,6
+            if 3 <= dealer_card_value <= 6:
+                return 'double'
+            else:
+                return 'hit'
+        elif 13 <= hand.value <= 16:  # A,2 through A,5
+            if 5 <= dealer_card_value <= 6:
+                return 'double'
+            else:
+                return 'hit'
+
+    # remaining hard totals
+    if hand.value >= 17:
+        return 'stand'
+    elif 13 <= hand.value <= 16:
         if dealer_card_value < 7:
             return 'stand'
         else:
             return 'hit'
+    elif hand.value == 12:
+        if 4 <= dealer_card_value <= 6:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 11:
+        return 'double'
+    elif hand.value == 10:
+        if dealer_card_value <= 9:
+            return 'double'
+        else:
+            return 'hit'
+    elif hand.value == 9:
+        if 3 <= dealer_card_value <= 6:
+            return 'double'
+        else:
+            return 'hit'
+    else:
+        return 'hit'
+
+
+def basic_strategy_no_aces(hand, dealer_card):
+    dealer_card_value = values[dealer_card[0]]
+    # handling split situations first
+    if hand.can_split():
+        if hand.cards[0][0] == 'Ace':
+            return 'split'
+        elif hand.cards[0][0] == 'Nine':
+            if 2 <= dealer_card_value <= 9 and dealer_card_value != 7:
+                return 'split'
+            else:
+                return 'stand'
+        elif hand.cards[0][0] == 'Eight':
+            return 'split'
+        elif hand.cards[0][0] == 'Seven':
+            if 2 <= dealer_card_value <= 7:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Six':
+            if 2 <= dealer_card_value <= 6:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Five':
+            if 2 <= dealer_card_value <= 9:
+                return 'double'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Four':
+            if 5 <= dealer_card_value <= 6:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Three' or hand.cards[0][0] == 'Two':
+            if 2 <= dealer_card_value <= 7:
+                return 'split'
+            else:
+                return 'hit'
+    # rest of cases
     if hand.value >= 17:
         return 'stand'
+    elif 13 <= hand.value <= 16:
+        if dealer_card_value < 7:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 12:
+        if 4 <= dealer_card_value <= 6:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 11:
+        return 'double'
+    elif hand.value == 10:
+        if dealer_card_value <= 9:
+            return 'double'
+        else:
+            return 'hit'
+    elif hand.value == 9:
+        if 3 <= dealer_card_value <= 6:
+            return 'double'
+        else:
+            return 'hit'
+    else:
+        return 'hit'
+
+
+def basic_strategy_no_splits_or_aces(hand, dealer_card):
+    dealer_card_value = values[dealer_card[0]]
+    if hand.value >= 17:
+        return 'stand'
+    elif 13 <= hand.value <= 16:
+        if dealer_card_value < 7:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 12:
+        if 4 <= dealer_card_value <= 6:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 11:
+        return 'double'
+    elif hand.value == 10:
+        if dealer_card_value <= 9:
+            return 'double'
+        else:
+            return 'hit'
+    elif hand.value == 9:
+        if 3 <= dealer_card_value <= 6:
+            return 'double'
+        else:
+            return 'hit'
+    else:
+        return 'hit'
+
+
+def basic_strategy(hand, dealer_card):
+    dealer_card_value = values[dealer_card[0]]
+
+    # handling split situations first
+    if hand.can_split():
+        if hand.cards[0][0] == 'Ace':
+            return 'split'
+        elif hand.cards[0][0] == 'Nine':
+            if 2 <= dealer_card_value <= 9 and dealer_card_value != 7:
+                return 'split'
+            else:
+                return 'stand'
+        elif hand.cards[0][0] == 'Eight':
+            return 'split'
+        elif hand.cards[0][0] == 'Seven':
+            if 2 <= dealer_card_value <= 7:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Six':
+            if 2 <= dealer_card_value <= 6:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Five':
+            if 2 <= dealer_card_value <= 9:
+                return 'double'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Four':
+            if 5 <= dealer_card_value <= 6:
+                return 'split'
+            else:
+                return 'hit'
+        elif hand.cards[0][0] == 'Three' or hand.cards[0][0] == 'Two':
+            if 2 <= dealer_card_value <= 7:
+                return 'split'
+            else:
+                return 'hit'
+
+    # handling soft totals
+    is_soft = any(card[0] == 'Ace' for card in hand.cards) and hand.value == sum(values[card[0]] for card in hand.cards)
+    if is_soft:
+        if hand.value == 20:  # A,9
+            return 'stand'
+        elif hand.value == 19:  # A,8
+            if dealer_card_value == 6:
+                return 'double'
+            else:
+                return 'stand'
+        elif hand.value == 18:  # A,7
+            if 2 <= dealer_card_value <= 6:
+                return 'double'
+            elif 9 <= dealer_card_value <= 11:
+                return 'hit'
+            else:
+                return 'stand'
+        elif hand.value == 17:  # A,6
+            if 3 <= dealer_card_value <= 6:
+                return 'double'
+            else:
+                return 'hit'
+        elif 13 <= hand.value <= 16:  # A,2 through A,5
+            if 5 <= dealer_card_value <= 6:
+                return 'double'
+            else:
+                return 'hit'
+
+    # remaining hard totals
+    if hand.value >= 17:
+        return 'stand'
+    elif 13 <= hand.value <= 16:
+        if dealer_card_value < 7:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 12:
+        if 4 <= dealer_card_value <= 6:
+            return 'stand'
+        else:
+            return 'hit'
+    elif hand.value == 11:
+        return 'double'
+    elif hand.value == 10:
+        if dealer_card_value <= 9:
+            return 'double'
+        else:
+            return 'hit'
+    elif hand.value == 9:
+        if 3 <= dealer_card_value <= 6:
+            return 'double'
+        else:
+            return 'hit'
+    else:
+        return 'hit'
 
 def basic_strategy_no_aces(hand, dealer_card):
     dealer_card_value = values[dealer_card[0]]
