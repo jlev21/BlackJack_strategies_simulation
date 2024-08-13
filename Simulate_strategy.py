@@ -79,35 +79,40 @@ def play_blackjack(strategy_function, initial_bet, deck):
             return [-initial_bet, amount_bet]  # Player loses the bet, return amount_bet as well
 
     if player_hand.is_blackjack():
-        return [int(initial_bet * 1.5), amount_bet]  # Player wins 1.5 times the bet
+        return [initial_bet * 1.5, amount_bet]  # Player wins 1.5 times the bet
 
     hands = [player_hand]  # Initialize with the player's original hand
     total_profit_loss = 0  # Track total profit or loss
 
     # Process each hand (to handle splitting)
-    for hand in hands:
+    hand_index = 0
+    while hand_index < len(hands):
+        hand = hands[hand_index]
         while True:
             action = strategy_function(hand, dealer_hand.cards[0])
 
             if action == 'hit':
                 hand.add_card(deck.deal())
                 if hand.value > 21:
-                    return [-initial_bet, amount_bet]
+                    break  # Bust, stop the loop for this hand
 
             elif action == 'stand':
                 break
 
             elif action == 'double':
+                amount_bet = 2 * amount_bet
                 hand.double_bet()
                 hand.add_card(deck.deal())
-                amount_bet = 2 * initial_bet
                 if hand.value > 21:
-                    return [-hand.bet_amount, amount_bet]
-                break
+                    break  # Bust, stop the loop for this hand
+                break  # After doubling, no further actions
 
             elif action == 'split':
                 if hand.can_split():
                     amount_bet = 2 * amount_bet
+                    # Remove the original hand and replace with two split hands
+                    hands.pop(hand_index)
+
                     # Create two new hands from the split
                     new_hand1 = Hand(hand.bet_amount)
                     new_hand2 = Hand(hand.bet_amount)
@@ -120,13 +125,14 @@ def play_blackjack(strategy_function, initial_bet, deck):
                     new_hand1.add_card(deck.deal())
                     new_hand2.add_card(deck.deal())
 
-                    # Add these new hands to the list of hands to process
-                    hands.append(new_hand1)
-                    hands.append(new_hand2)
-
-                    break
+                    # Insert the new hands into the list of hands
+                    hands.insert(hand_index, new_hand1)
+                    hands.insert(hand_index + 1, new_hand2)
+                    break  # Move on to the next hand
             else:
                 break
+
+        hand_index += 1  # Move to the next hand
 
     # Dealer's turn
     while dealer_hand.value < 17:
@@ -134,12 +140,13 @@ def play_blackjack(strategy_function, initial_bet, deck):
 
     # Determine the outcome for each hand
     for hand in hands:
-        if dealer_hand.value > 21:
-            total_profit_loss += hand.bet_amount
-        elif dealer_hand.value > hand.value:
-            total_profit_loss -= hand.bet_amount
-        elif dealer_hand.value < hand.value:
-            total_profit_loss += hand.bet_amount
+        if hand.value > 21:
+            total_profit_loss -= hand.bet_amount  # Player busts, loses the bet
+        elif dealer_hand.value > 21 or hand.value > dealer_hand.value:
+            total_profit_loss += hand.bet_amount  # Player wins
+        elif hand.value < dealer_hand.value:
+            total_profit_loss -= hand.bet_amount  # Dealer wins
+        # No change if it's a tie
 
     return [total_profit_loss, amount_bet]
 
@@ -450,13 +457,14 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
 
 
 
-plot_hand_data(1000000,100, basic_strategy, 25,6)
+plot_hand_data(100000,100, basic_strategy, 25,6)
+"""
 plot_hand_data(1000000,100, simplest_strategy, 25,6)
 plot_hand_data(1000000,100, random_strategy, 25,6)
 plot_hand_data(1000000,100, basic_strategy_no_split, 25,6)
 plot_hand_data(1000000,100, basic_strategy_no_aces, 25,6)
 plot_hand_data(1000000,100, basic_strategy_no_splits_or_aces, 25,6)
-
+"""
 # results from this simulation:
 # basic strategy mean profit: -18.032802
 # basic strategy mean stake: 2859.51055
