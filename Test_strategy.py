@@ -142,6 +142,7 @@ def play_blackjack(strategy_function, initial_bet, deck):
                     # Insert the new hands into the list of hands
                     hands.insert(hand_index, new_hand1)
                     hands.insert(hand_index + 1, new_hand2)
+                    hand_index -= 1
 
                     print(f"New hands after split: {new_hand1.cards} and {new_hand2.cards}")
                     break  # Move on to the next hand
