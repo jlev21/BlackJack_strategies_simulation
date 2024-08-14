@@ -23,7 +23,7 @@ class Deck:
         random.shuffle(self.deck)
 
     def deal(self):
-        if len(self.deck) == 0.8*len(self.deck):
+        if len(self.deck) == 0.25 * self.num_decks * len(suits) * len(ranks):
             self.reshuffle()
         return self.deck.pop()
 
@@ -103,8 +103,6 @@ def play_blackjack(strategy_function, initial_bet, deck):
                 amount_bet = 2 * amount_bet
                 hand.double_bet()
                 hand.add_card(deck.deal())
-                if hand.value > 21:
-                    break  # Bust, stop the loop for this hand
                 break  # After doubling, no further actions
 
             elif action == 'split':
@@ -457,8 +455,8 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
 
 
 
-
-plot_hand_data(100000,100, basic_strategy, 25,6)
+print(simulate_hands(10000000,basic_strategy, 25,6))
+#plot_hand_data(1000000,100, basic_strategy, 25,6)
 """
 plot_hand_data(1000000,100, simplest_strategy, 25,6)
 plot_hand_data(1000000,100, random_strategy, 25,6)

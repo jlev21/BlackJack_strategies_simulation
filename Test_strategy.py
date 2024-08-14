@@ -23,7 +23,7 @@ class Deck:
         random.shuffle(self.deck)
 
     def deal(self):
-        if len(self.deck) == 0.8 * len(self.deck):
+        if len(self.deck) == 0.25 * len(self.deck):
             self.reshuffle()
         return self.deck.pop()
 
@@ -448,7 +448,7 @@ def basic_strategy(hand, dealer_card):
 # Test the game with the basic strategy
 def test_strategy(strategy):
     deck = Deck(1)
-    play_blackjack(strategy, 100, deck)
+    print(play_blackjack(strategy, 100, deck))
     return
 
 
