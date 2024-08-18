@@ -61,7 +61,6 @@ class Hand:
 def play_blackjack(strategy_function, initial_bet, deck):
     player_hand = Hand(initial_bet)
     dealer_hand = Hand(0)  # Dealer doesn't have a bet amount
-    amount_bet = initial_bet
 
     print(f"Starting a new hand with a bet of {initial_bet}")
 
@@ -78,14 +77,14 @@ def play_blackjack(strategy_function, initial_bet, deck):
     if dealer_hand.is_blackjack():
         if player_hand.is_blackjack():
             print("Both player and dealer have blackjack. Push.")
-            return [0, amount_bet]  # No profit or loss, return amount_bet as well
+            return 0  # No profit or loss
         else:
             print("Dealer has blackjack. Player loses.")
-            return [-initial_bet, amount_bet]  # Player loses the bet, return amount_bet as well
+            return -1 * initial_bet  # Player loses the bet
 
     if player_hand.is_blackjack():
         print("Player has blackjack. Player wins 1.5 times the bet.")
-        return [initial_bet * 1.5, amount_bet]  # Player wins 1.5 times the bet
+        return initial_bet * 1.5  # Player wins 1.5 times the bet
 
     hands = [player_hand]  # Initialize with the player's original hand
     total_profit_loss = 0  # Track total profit or loss
@@ -172,8 +171,8 @@ def play_blackjack(strategy_function, initial_bet, deck):
         else:
             print("Push. No change in profit or loss.")
 
-    print(f"End of hand. Total profit/loss: {total_profit_loss}, Total bet: {amount_bet}")
-    return [total_profit_loss, amount_bet]
+    print(f"End of hand. Total profit/loss: {total_profit_loss}")
+    return total_profit_loss
 
 
 # Example strategy functions

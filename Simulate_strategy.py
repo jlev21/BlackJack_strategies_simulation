@@ -63,7 +63,6 @@ class Hand:
 def play_blackjack(strategy_function, initial_bet, deck):
     player_hand = Hand(initial_bet)
     dealer_hand = Hand(0)  # Dealer doesn't have a bet amount
-    amount_bet = initial_bet
 
     # Initial dealing
     player_hand.add_card(deck.deal())
@@ -74,12 +73,12 @@ def play_blackjack(strategy_function, initial_bet, deck):
     # Check for blackjack
     if dealer_hand.is_blackjack():
         if player_hand.is_blackjack():
-            return [0, amount_bet]  # No profit or loss, return amount_bet as well
+            return 0  # No profit or loss
         else:
-            return [-initial_bet, amount_bet]  # Player loses the bet, return amount_bet as well
+            return -1 * initial_bet  # Player loses the bet
 
     if player_hand.is_blackjack():
-        return [initial_bet * 1.5, amount_bet]  # Player wins 1.5 times the bet
+        return initial_bet * 1.5 # Player wins 1.5 times the bet
 
     hands = [player_hand]  # Initialize with the player's original hand
     total_profit_loss = 0  # Track total profit or loss
@@ -100,14 +99,12 @@ def play_blackjack(strategy_function, initial_bet, deck):
                 break
 
             elif action == 'double':
-                amount_bet = 2 * amount_bet
                 hand.double_bet()
                 hand.add_card(deck.deal())
                 break  # After doubling, no further actions
 
             elif action == 'split':
                 if hand.can_split():
-                    amount_bet = 2 * amount_bet
                     # Remove the original hand and replace with two split hands
                     hands.pop(hand_index)
 
@@ -147,7 +144,7 @@ def play_blackjack(strategy_function, initial_bet, deck):
             total_profit_loss -= hand.bet_amount  # Dealer wins
         # No change if it's a tie
 
-    return [total_profit_loss, amount_bet]
+    return total_profit_loss
 
 
 def simplest_strategy(hand, dealer_card):
@@ -425,27 +422,22 @@ def simulate_hands(num_of_hands, strategy, bet, num_of_decks):
     results = []
     total_profit_loss = 0
     deck = Deck(num_of_decks)
-    amount_staked = 0 # Create the deck once for the whole simulation
     for i in range(num_of_hands):
         hand_result = play_blackjack(strategy, bet, deck)
-        stake = hand_result[1]
-        amount_staked += stake
-        results.append(hand_result[0])
-        total_profit_loss += hand_result[0]
-    return results, total_profit_loss, amount_staked
+        results.append(hand_result)
+        total_profit_loss += hand_result
+    print(total_profit_loss)
+    print(f'house edge calculated at {(total_profit_loss/(bet*num_of_hands))*100}')
+    return results, total_profit_loss
 
 # plot histogram of distribution of blackjack session profits and print mean of data
 def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
     profits = []
-    stake_amounts = []
     for i in range(amount_of_data):
         simulation = simulate_hands(num_of_hands, strategy, bet, num_of_decks)
-        hand_profit_loss = simulation[1]
-        amount_staked = simulation[2]
+        hand_profit_loss = simulation
         profits.append(hand_profit_loss)
-        stake_amounts.append(amount_staked)
     print(f'mean profit: {calculate_mean(profits)}')
-    print(f'mean stake: {calculate_mean(stake_amounts)}')
     data = profits
     plt.hist(data, bins=10, edgecolor='black')
     plt.title(f'Histogram for {strategy.__name__}')
@@ -454,8 +446,10 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
     plt.show()
 
 
+simulate_hands(500000000,basic_strategy, 25,6)
+# total loss was -479025.0 after 500 million hands betting 25 each
+# house edge calculated at .0038322%
 
-print(simulate_hands(10000000,basic_strategy, 25,6))
 #plot_hand_data(1000000,100, basic_strategy, 25,6)
 """
 plot_hand_data(1000000,100, simplest_strategy, 25,6)
@@ -464,19 +458,5 @@ plot_hand_data(1000000,100, basic_strategy_no_split, 25,6)
 plot_hand_data(1000000,100, basic_strategy_no_aces, 25,6)
 plot_hand_data(1000000,100, basic_strategy_no_splits_or_aces, 25,6)
 """
-# results from this simulation:
-# basic strategy mean profit: -18.032802
-# basic strategy mean stake: 2859.51055
-# simplest strategy mean profit: -144.56793
-# simplest strategy mean stake: 2500.0
-# random strategy mean profit: -856.352735
-# random strategy mean stake: 2500.0
-# no splits mean profit: -23.15914
-# no splits mean stake: 2788.3524
-# not considering soft hands mean profit: -44.506214
-# not considering soft hands mean stake: 2814.109075
-# not considering splits or soft hands mean profit: -47.206922
-# not considering splits or soft hands mean stake: 2739.786725
-
 
 
