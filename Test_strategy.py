@@ -409,7 +409,12 @@ def basic_strategy(hand, dealer_card):
                 return 'double'
             else:
                 return 'hit'
-        elif 13 <= hand.value <= 16:  # A,2 through A,5
+        elif 15 <= hand.value <= 16:  # A,4 and A,5
+            if 4 <= dealer_card_value <= 6:
+                return 'double'
+            else:
+                return 'hit'
+        elif 13 <= hand.value <= 14:  # A,2 and A,3
             if 5 <= dealer_card_value <= 6:
                 return 'double'
             else:
