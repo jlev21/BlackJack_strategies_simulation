@@ -51,6 +51,9 @@ class Hand:
     def can_split(self):
         return len(self.cards) == 2 and self.cards[0][0] == self.cards[1][0]
 
+    def can_double(self):
+        return len(self.cards) == 2
+
     def double_bet(self):
         self.bet_amount *= 2
 
@@ -98,7 +101,7 @@ def play_blackjack(strategy_function, initial_bet, deck):
             elif action == 'stand':
                 break
 
-            elif action == 'double':
+            elif action == 'double' and hand.can_double():
                 hand.double_bet()
                 hand.add_card(deck.deal())
                 break  # After doubling, no further actions
@@ -170,29 +173,29 @@ def basic_strategy_no_split(hand, dealer_card):
         if hand.value == 20:  # A,9
             return 'stand'
         elif hand.value == 19:  # A,8
-            if dealer_card_value == 6:
+            if dealer_card_value == 6 and hand.can_double():
                 return 'double'
             else:
                 return 'stand'
         elif hand.value == 18:  # A,7
-            if 2 <= dealer_card_value <= 6:
+            if 2 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             elif 9 <= dealer_card_value <= 11:
                 return 'hit'
             else:
                 return 'stand'
         elif hand.value == 17:  # A,6
-            if 3 <= dealer_card_value <= 6:
+            if 3 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
         elif 15 <= hand.value <= 16:  # A,4 and A,5
-            if 4 <= dealer_card_value <= 6:
+            if 4 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
         elif 13 <= hand.value <= 14:  # A,2 and A,3
-            if 5 <= dealer_card_value <= 6:
+            if 5 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
@@ -210,15 +213,15 @@ def basic_strategy_no_split(hand, dealer_card):
             return 'stand'
         else:
             return 'hit'
-    elif hand.value == 11:
+    elif hand.value == 11 and hand.can_double():
         return 'double'
     elif hand.value == 10:
-        if dealer_card_value <= 9:
+        if dealer_card_value <= 9 and hand.can_double():
             return 'double'
         else:
             return 'hit'
     elif hand.value == 9:
-        if 3 <= dealer_card_value <= 6:
+        if 3 <= dealer_card_value <= 6 and hand.can_double():
             return 'double'
         else:
             return 'hit'
@@ -250,7 +253,7 @@ def basic_strategy_no_aces(hand, dealer_card):
             else:
                 return 'hit'
         elif hand.cards[0][0] == 'Five':
-            if 2 <= dealer_card_value <= 9:
+            if 2 <= dealer_card_value <= 9 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
@@ -277,7 +280,7 @@ def basic_strategy_no_aces(hand, dealer_card):
             return 'stand'
         else:
             return 'hit'
-    elif hand.value == 11:
+    elif hand.value == 11 and hand.can_double():
         return 'double'
     elif hand.value == 10:
         if dealer_card_value <= 9:
@@ -285,7 +288,7 @@ def basic_strategy_no_aces(hand, dealer_card):
         else:
             return 'hit'
     elif hand.value == 9:
-        if 3 <= dealer_card_value <= 6:
+        if 3 <= dealer_card_value <= 6 and hand.can_double():
             return 'double'
         else:
             return 'hit'
@@ -307,15 +310,15 @@ def basic_strategy_no_splits_or_aces(hand, dealer_card):
             return 'stand'
         else:
             return 'hit'
-    elif hand.value == 11:
+    elif hand.value == 11 and hand.can_double():
         return 'double'
     elif hand.value == 10:
-        if dealer_card_value <= 9:
+        if dealer_card_value <= 9 and hand.can_double():
             return 'double'
         else:
             return 'hit'
     elif hand.value == 9:
-        if 3 <= dealer_card_value <= 6:
+        if 3 <= dealer_card_value <= 6 and hand.can_double():
             return 'double'
         else:
             return 'hit'
@@ -348,7 +351,7 @@ def basic_strategy(hand, dealer_card):
             else:
                 return 'hit'
         elif hand.cards[0][0] == 'Five':
-            if 2 <= dealer_card_value <= 9:
+            if 2 <= dealer_card_value <= 9 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
@@ -369,29 +372,29 @@ def basic_strategy(hand, dealer_card):
         if hand.value == 20:  # A,9
             return 'stand'
         elif hand.value == 19:  # A,8
-            if dealer_card_value == 6:
+            if dealer_card_value == 6 and hand.can_double():
                 return 'double'
             else:
                 return 'stand'
         elif hand.value == 18:  # A,7
-            if 2 <= dealer_card_value <= 6:
+            if 2 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             elif 9 <= dealer_card_value <= 11:
                 return 'hit'
             else:
                 return 'stand'
         elif hand.value == 17:  # A,6
-            if 3 <= dealer_card_value <= 6:
+            if 3 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
         elif 15 <= hand.value <= 16:  # A,4 and A,5
-            if 4 <= dealer_card_value <= 6:
+            if 4 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
         elif 13 <= hand.value <= 14:  # A,2 and A,3
-            if 5 <= dealer_card_value <= 6:
+            if 5 <= dealer_card_value <= 6 and hand.can_double():
                 return 'double'
             else:
                 return 'hit'
@@ -409,15 +412,15 @@ def basic_strategy(hand, dealer_card):
             return 'stand'
         else:
             return 'hit'
-    elif hand.value == 11:
+    elif hand.value == 11 and hand.can_double():
         return 'double'
     elif hand.value == 10:
-        if dealer_card_value <= 9:
+        if dealer_card_value <= 9 and hand.can_double:
             return 'double'
         else:
             return 'hit'
     elif hand.value == 9:
-        if 3 <= dealer_card_value <= 6:
+        if 3 <= dealer_card_value <= 6 and hand.can_double:
             return 'double'
         else:
             return 'hit'

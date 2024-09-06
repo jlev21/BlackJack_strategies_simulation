@@ -59,6 +59,7 @@ class Hand:
 
 # Function to simulate a hand of blackjack
 def play_blackjack(strategy_function, initial_bet, deck):
+    split_aces = False
     player_hand = Hand(initial_bet)
     dealer_hand = Hand(0)  # Dealer doesn't have a bet amount
 
@@ -92,6 +93,8 @@ def play_blackjack(strategy_function, initial_bet, deck):
     # Process each hand (to handle splitting)
     hand_index = 0
     while hand_index < len(hands):
+        if split_aces:
+            break
         hand = hands[hand_index]
         print(f"Processing hand: {hand.cards}, total value: {hand.value}")
 
@@ -122,6 +125,8 @@ def play_blackjack(strategy_function, initial_bet, deck):
 
             elif action == 'split':
                 if hand.can_split():
+                    if hand.cards[0][0] == 'A' and hand.cards[1][0] == 'A':
+                        split_aces = True
                     print("Player splits the hand.")
                     # Remove the original hand and replace with two split hands
                     hands.pop(hand_index)
@@ -456,17 +461,6 @@ def test_strategy(strategy):
     return
 
 
-def test_strategy_with_specific_cards(strategy, card1, card2, dealer_card):
-    test_hand = Hand(10)  # Initial bet of 10, for example
 
-# Add the specific cards to the hand
-    test_hand.add_card(card1)
-    test_hand.add_card(card2)
 
-# Use the basic strategy function to decide what to do
-    action = strategy(test_hand, dealer_card)
 
-# Print the action decided by the strategy
-    print(f"Action for hand {test_hand.cards} with dealer showing {dealer_card}: {action}")
-
-test_strategy(basic_strategy)
