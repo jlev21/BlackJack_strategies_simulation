@@ -439,8 +439,8 @@ def simulate_hands(num_of_hands, strategy, bet, num_of_decks):
         hand_result = play_blackjack(strategy, bet, deck)
         results.append(hand_result)
         total_profit_loss += hand_result
-    print(total_profit_loss)
-    print(f'house edge calculated at {(total_profit_loss/(bet*num_of_hands))*100}')
+    #print(total_profit_loss)
+    #print(f'house edge calculated at {(total_profit_loss/(bet*num_of_hands))*100}')
     return results, total_profit_loss
 
 # plot histogram of distribution of blackjack session profits and print mean of data
@@ -448,9 +448,8 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
     profits = []
     for i in range(amount_of_data):
         simulation = simulate_hands(num_of_hands, strategy, bet, num_of_decks)
-        hand_profit_loss = simulation
+        hand_profit_loss = simulation[1]
         profits.append(hand_profit_loss)
-    print(f'mean profit: {calculate_mean(profits)}')
     data = profits
     plt.hist(data, bins=10, edgecolor='black')
     plt.title(f'Histogram for {strategy.__name__}')
@@ -459,17 +458,16 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
     plt.show()
 
 
-simulate_hands(500000000,basic_strategy, 25,6)
-# total loss was -479025.0 after 500 million hands betting 25 each
-# house edge calculated at .0038322%
+#simulate_hands(500000000,basic_strategy, 25,6)
+# total loss was -60922225.0 after 500 million hands betting 25 each
+# house edge calculated at 0.487 %
 
-#plot_hand_data(1000000,100, basic_strategy, 25,6)
-"""
-plot_hand_data(1000000,100, simplest_strategy, 25,6)
-plot_hand_data(1000000,100, random_strategy, 25,6)
-plot_hand_data(1000000,100, basic_strategy_no_split, 25,6)
-plot_hand_data(1000000,100, basic_strategy_no_aces, 25,6)
-plot_hand_data(1000000,100, basic_strategy_no_splits_or_aces, 25,6)
-"""
+plot_hand_data(100000,100, basic_strategy, 25,6)
+plot_hand_data(100000,100, simplest_strategy, 25,6)
+plot_hand_data(100000,100, random_strategy, 25,6)
+plot_hand_data(100000,100, basic_strategy_no_split, 25,6)
+plot_hand_data(100000,100, basic_strategy_no_aces, 25,6)
+plot_hand_data(100000,100, basic_strategy_no_splits_or_aces, 25,6)
+
 
 
