@@ -130,6 +130,5 @@ def run_custom_strategy_simulation():
     else:
         print("Plotting skipped.")
 
-
 if __name__ == "__main__":
     run_custom_strategy_simulation()
