@@ -14,7 +14,7 @@ Randomly choose either to hit or stand
 Optimal decision structure. This is referred to as "basic strategy" in blackjack. The decisions are according to the following table (surrender is not allowed):
 ![mini-blackjack-strategy-chart](https://github.com/user-attachments/assets/2a9491ab-4ca0-495f-9a15-3e331d2ccfc4)
 Additionally there are some premade strategies that amend basic strategy, for example basic strategy without splitting or without doing anything different for soft totals.
-I added these because these are the some of the most often cases where people play sub-optimally (not splitting or mishandling aces).
+I added these because they are the some of the most often cases where people play sub-optimally (not splitting or mishandling aces).
 ## Simulate_custom_strategy.py
 The purpose of this is so that people can create their own strategies and simulate what would happen if they played x number of hands. First
 it will ask the user to input their changes to basic strategy, and then it will act similarly to Simulate_premade_strategy.py, using the 
