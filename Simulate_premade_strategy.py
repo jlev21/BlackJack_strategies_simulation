@@ -462,12 +462,4 @@ def plot_hand_data(amount_of_data, num_of_hands, strategy, bet, num_of_decks):
 # total loss was -60922225.0 after 500 million hands betting 25 each
 # house edge calculated at 0.487 %
 
-plot_hand_data(100000,100, basic_strategy, 25,6)
-plot_hand_data(100000,100, simplest_strategy, 25,6)
-plot_hand_data(100000,100, random_strategy, 25,6)
-plot_hand_data(100000,100, basic_strategy_no_split, 25,6)
-plot_hand_data(100000,100, basic_strategy_no_aces, 25,6)
-plot_hand_data(100000,100, basic_strategy_no_splits_or_aces, 25,6)
-
-
 
