@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from blackjack import Deck, play_blackjack, simulate_hands, values
 from Simulate_premade_strategy import basic_strategy
 
-
 # Learn Strategy Function
 def learn_strategy():
     """
