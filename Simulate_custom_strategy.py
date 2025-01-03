@@ -10,8 +10,9 @@ def learn_strategy():
     """
     print("\nFirst you will define specifically which changes you want to make to basic strategy in your custom strategy")
     print("\nProvide your overrides using the following format:")
-    print("Example: hard, 17, 10, hit")
-    print("Format: <hand_type>, <hand_value>, <dealer_card>, <action>")
+    print("Format: <hand_type>, <hand_value>, <dealer_card_value>, <action>")
+    print("Example 1: hard, 16, 10, hit")
+    print("Example 2: soft, 18, 4, stand")
     print("Type 'done' to finish input.")
     print("\nDefaults to Basic Strategy for all undefined scenarios.\n")
 
@@ -23,13 +24,13 @@ def learn_strategy():
             break
 
         try:
-            hand_type, hand_value, dealer_card, action = map(str.strip, user_input.split(","))
+            hand_type, hand_value, dealer_card_value, action = map(str.strip, user_input.split(","))
             if hand_type not in ("hard", "soft") or action not in ("hit", "stand", "double", "split"):
                 raise ValueError
 
             hand_value = int(hand_value)
-            dealer_card = int(dealer_card)
-            strategy_memory[(hand_type, hand_value, dealer_card)] = action
+            dealer_card_value = int(dealer_card_value)
+            strategy_memory[(hand_type, hand_value, dealer_card_value)] = action
 
         except ValueError:
             print("Invalid input. Please follow the format: <hand_type>, <hand_value>, <dealer_card>, <action>")
@@ -44,7 +45,7 @@ def custom_strategy_with_defaults(strategy_memory):
     Custom strategy function based on user-defined memory and Basic Strategy as default.
     """
     def custom_strategy(hand, dealer_card):
-        is_soft = any(card[0] == 'Ace' for card in hand.cards) and hand.value <= 21
+        is_soft = hand.aces != 0
         dealer_card_value = values[dealer_card[0]]
         situation = ("soft" if is_soft else "hard", hand.value, dealer_card_value)
 
@@ -64,70 +65,75 @@ def run_custom_strategy_simulation():
     # Learn the strategy with basic strategy as default
     strategy_memory = learn_strategy()
     user_defined_strategy = custom_strategy_with_defaults(strategy_memory)
+    while True:
+        # Get number of decks
+        try:
+            num_of_decks = int(input("Enter the number of decks to play with: "))
+            if num_of_decks <= 0:
+                raise ValueError
+        except ValueError:
+            print("Invalid number of decks. Exiting.")
+            return
 
-    # Get number of decks
-    try:
-        num_of_decks = int(input("Enter the number of decks to play with: "))
-        if num_of_decks <= 0:
-            raise ValueError
-    except ValueError:
-        print("Invalid number of decks. Exiting.")
-        return
+        # Get bet amount
+        try:
+            bet_amount = int(input("Enter your bet amount: "))
+        except ValueError:
+            print("Invalid bet amount. Exiting.")
+            return
 
-    # Get bet amount
-    try:
-        bet_amount = int(input("Enter your bet amount: "))
-    except ValueError:
-        print("Invalid bet amount. Exiting.")
-        return
+        # Get number of hands played per day
+        try:
+            num_of_hands = int(input("Enter the number of hands you play in a day: "))
+        except ValueError:
+            print("Invalid number of hands. Exiting.")
+            return
 
-    # Get number of hands played per day
-    try:
-        num_of_hands = int(input("Enter the number of hands you play in a day: "))
-    except ValueError:
-        print("Invalid number of hands. Exiting.")
-        return
+        # Get number of days to simulate
+        try:
+            amount_of_data = int(input("Enter the number of days you want to simulate: "))
+        except ValueError:
+            print("Invalid number of days. Exiting.")
+            return
 
-    # Get number of days to simulate
-    try:
-        amount_of_data = int(input("Enter the number of days you want to simulate: "))
-    except ValueError:
-        print("Invalid number of days. Exiting.")
-        return
+        # Ask if the user wants to plot results
+        plot_choice = input("Would you like to plot the results? (yes/no): ").strip().lower()
+        plot_results = plot_choice in ("yes", "y")
+        # Simulate the games
+        print("\nSimulating games...")
+        profits = []
+        total_hands_played = num_of_hands * amount_of_data
+        for _ in range(amount_of_data):
+            _, total_profit_loss = simulate_hands(num_of_hands, user_defined_strategy, bet_amount, num_of_decks)
+            profits.append(total_profit_loss)
 
-    # Ask if the user wants to plot results
-    plot_choice = input("Would you like to plot the results? (yes/no): ").strip().lower()
-    plot_results = plot_choice in ("yes", "y")
+        # Calculate results
+        total_profit = sum(profits)
+        average_daily_profit = total_profit / amount_of_data
+        house_edge = (total_profit / (total_hands_played * bet_amount)) * -100
 
-    # Simulate the games
-    print("\nSimulating games...")
-    profits = []
-    total_hands_played = num_of_hands * amount_of_data
-    for _ in range(amount_of_data):
-        _, total_profit_loss = simulate_hands(num_of_hands, user_defined_strategy, bet_amount, num_of_decks)
-        profits.append(total_profit_loss)
+        # Print results
+        print(f"\nSimulation complete!")
+        print(f"Total Profit: {total_profit}")
+        print(f"Average Daily Profit: {average_daily_profit:.2f}")
+        print(f"House Edge: {house_edge:.2f}%")
 
-    # Calculate results
-    total_profit = sum(profits)
-    average_daily_profit = total_profit / amount_of_data
-    house_edge = (total_profit / (total_hands_played * bet_amount)) * -100
+        # Plot the results if requested
+        if plot_results:
+            print("\nPlotting results...")
+            plt.hist(profits, bins=10, edgecolor='black')
+            plt.title(f'Profit Distribution over {amount_of_data} Days')
+            plt.xlabel('Daily Profit/Loss')
+            plt.ylabel('Frequency')
+            plt.show()
+        else:
+            print("Plotting skipped.")
 
-    # Print results
-    print(f"\nSimulation complete!")
-    print(f"Total Profit: {total_profit}")
-    print(f"Average Daily Profit: {average_daily_profit:.2f}")
-    print(f"House Edge: {house_edge:.2f}%")
+        again = input("Would you like to run another simulation with the same strategy? (yes/no) ").strip().lower()
+        again_result = again in ("yes", "y")
+        if not again_result:
+            break
 
-    # Plot the results if requested
-    if plot_results:
-        print("\nPlotting results...")
-        plt.hist(profits, bins=10, edgecolor='black')
-        plt.title(f'Profit Distribution over {amount_of_data} Days')
-        plt.xlabel('Daily Profit/Loss')
-        plt.ylabel('Frequency')
-        plt.show()
-    else:
-        print("Plotting skipped.")
 
 if __name__ == "__main__":
     run_custom_strategy_simulation()
